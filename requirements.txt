@@ -92,3 +92,4 @@ streamlit
 pandas
 scikit-learn
 google-generativeai
+scipy

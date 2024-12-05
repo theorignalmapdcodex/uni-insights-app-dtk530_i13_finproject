@@ -1,1 +1,2 @@
 gemini_ai_api_key/.env
+gemini_ai_api_key/gemini_api.py
