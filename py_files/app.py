@@ -109,10 +109,10 @@ elif selected_model == "Regression":
 
 # Select the desired model
 try:
-    gemini_model = genai.GenerativeModel("gemini-1.5-flash")  # Ensure the model is valid
+    the_gemini_model = gemini_model  # Ensure the model is valid
 except Exception as e:
     st.error(f"Error initializing Gemini model: {e}")
-    gemini_model = None
+    the_gemini_model = None
 
 # Streamlit UI for User Input
 st.title("University Insights with Gemini API")
@@ -120,11 +120,11 @@ st.subheader("Ask Questions about University Rankings or Outcomes")
 query = st.text_input("Enter your query:")
 
 if query:
-    if gemini_model:
+    if the_gemini_model:
         try:
             # Make the API call
             with st.spinner("Fetching insights from Gemini API..."):
-                gemini_response = gemini_model.generate_content(query)
+                gemini_response = the_gemini_model.generate_content(query)
             st.success("Gemini API Response:")
             st.write(gemini_response.text)  # Display the response from Gemini
 
@@ -133,6 +133,5 @@ if query:
             st.error(f"An error occurred while fetching data from Gemini API: {e}")
     else:
         st.warning("Gemini model is not properly initialized. Please check the configuration.")
-
 
 
