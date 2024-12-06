@@ -94,3 +94,15 @@ elif selected_model == "Regression":
     st.write(f"Model Mean Squared Error: **{mse:.2f}**")
 
 # Gemini API integration 2 - In 'gemini_ai_call'
+from py_files.gemini_ai_call import query_gemini_api
+
+st.subheader("Ask Questions with Google's Gemini API")
+
+# Input field for user query
+query = st.text_input("Ask a question about university rankings or outcomes:")
+
+if query:
+    # Fetch the response from the Gemini API
+    response = query_gemini_api(query)
+    st.write(f"Gemini API Response: {response}")
+
