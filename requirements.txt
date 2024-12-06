@@ -93,3 +93,4 @@ pandas
 scikit-learn
 google-generativeai
 scipy
+python-dotenv
