@@ -92,17 +92,47 @@ elif selected_model == "Regression":
     # Display regression performance
     mse = mean_squared_error(y, reg_model.predict(X))
     st.write(f"Model Mean Squared Error: **{mse:.2f}**")
+    
 
-# Gemini API integration 2 - In 'gemini_ai_call'
-from py_files.gemini_ai_call import query_gemini_api
 
-st.subheader("Ask Questions with Google's Gemini API")
+# Gemini API integration 2 - In 'gemini_ai_call'- 'Imported at the beginning' now 'Direct'
 
-# Input field for user query
-query = st.text_input("Ask a question about university rankings or outcomes:")
+# st.subheader("Ask Questions with Google's Gemini API")
+
+# # Input field for user query
+# query = st.text_input("Ask a question about university rankings or outcomes:")
+
+# if not the_api_key:
+#     st.error("Gemini API key not found. Please set the GENAI_API_KEY environment variable.")
+# else:
+#     genai.configure(api_key=the_api_key)  # Configure the GenAI library
+
+# Select the desired model
+try:
+    gemini_model = genai.GenerativeModel("gemini-1.5-flash")  # Ensure the model is valid
+except Exception as e:
+    st.error(f"Error initializing Gemini model: {e}")
+    gemini_model = None
+
+# Streamlit UI for User Input
+st.title("University Insights with Gemini API")
+st.subheader("Ask Questions about University Rankings or Outcomes")
+query = st.text_input("Enter your query:")
 
 if query:
-    # Fetch the response from the Gemini API
-    response = query_gemini_api(query)
-    st.write(f"Gemini API Response: {response}")
+    if gemini_model:
+        try:
+            # Make the API call
+            with st.spinner("Fetching insights from Gemini API..."):
+                gemini_response = gemini_model.generate_content(query)
+            st.success("Gemini API Response:")
+            st.write(gemini_response.text)  # Display the response from Gemini
+
+
+        except Exception as e:
+            st.error(f"An error occurred while fetching data from Gemini API: {e}")
+    else:
+        st.warning("Gemini model is not properly initialized. Please check the configuration.")
+
+
 
