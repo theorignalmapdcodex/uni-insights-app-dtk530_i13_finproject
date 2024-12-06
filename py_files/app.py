@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -11,6 +10,7 @@ import matplotlib.pyplot as plt
 import google.generativeai as genai
 import os
 import warnings
+
 warnings.filterwarnings("ignore")
 
 # Load the dataset
@@ -93,45 +93,76 @@ elif selected_model == "Regression":
     mse = mean_squared_error(y, reg_model.predict(X))
     st.write(f"Model Mean Squared Error: **{mse:.2f}**")
     
+#--------------------------------------------------------------#
 
+# Streamlit UI for User Input(s)
+st.title("University Insights with Gemini API")
+st.subheader("Ask Questions about University Rankings or Outcomes")
 
-# Gemini API integration 2 - In 'gemini_ai_call'- 'Imported at the beginning' now 'Direct'
-
-# st.subheader("Ask Questions with Google's Gemini API")
-
-# # Input field for user query
-# query = st.text_input("Ask a question about university rankings or outcomes:")
-
-# if not the_api_key:
-#     st.error("Gemini API key not found. Please set the GENAI_API_KEY environment variable.")
-# else:
-#     genai.configure(api_key=the_api_key)  # Configure the GenAI library
-
-# Select the desired model
+# # A
+# Select the desired model for A
 try:
     the_gemini_model = gemini_model  # Ensure the model is valid
 except Exception as e:
     st.error(f"Error initializing Gemini model: {e}")
     the_gemini_model = None
 
-# Streamlit UI for User Input
-st.title("University Insights with Gemini API")
-st.subheader("Ask Questions about University Rankings or Outcomes")
-query = st.text_input("Enter your query:")
+user_input = st.text_input("Enter your query:")
 
-if query:
-    if the_gemini_model:
-        try:
-            # Make the API call
-            with st.spinner("Fetching insights from Gemini API..."):
-                gemini_response = the_gemini_model.generate_content(query)
-            st.success("Gemini API Response:")
-            st.write(gemini_response.text)  # Display the response from Gemini
-
-
-        except Exception as e:
-            st.error(f"An error occurred while fetching data from Gemini API: {e}")
+# Button to submit and process input
+if st.button("Generate Response"):
+    if not user_input:
+        st.error("Please provide the required input before proceeding.")
     else:
-        st.warning("Gemini model is not properly initialized. Please check the configuration.")
+        # Initialize the Gemini model with your API key
+        if the_gemini_model:
+            try:
+                # Make the API call
+                with st.spinner("Fetching insights from Gemini API..."):
+                    gemini_response = query_gemini_api(user_input, the_gemini_model)   # the_gemini_model.generate_content(user_input) | query_gemini_api(user_input, the_gemini_model)
+                st.success("Gemini API Response:")
+                st.write(gemini_response.text)  # Display the response from Gemini
 
+            except Exception as e:
+                st.error(f"An error occurred while fetching data from Gemini API: {e}")
+        else:
+            st.warning("Gemini model is not properly initialized. Please check the configuration.")
+        
 
+# # B
+# # Streamlit App
+# st.title("Gemini AI Image Analysis")
+# st.write("Upload an image to get insights from the Gemini AI API.")
+
+# # Upload an image
+# uploaded_file = st.file_uploader("Upload an image (PNG or JPG)", type=["png", "jpg", "jpeg"])
+
+# if uploaded_file:
+#     try:
+#         # Open the uploaded image using PIL
+#         image = Image.open(uploaded_file)
+
+#         # Display the uploaded image
+#         st.image(image, caption="Uploaded Image", use_container_width=True)
+
+#         # Select the Gemini model
+#         try:
+#             my_gemini_model = gemini_model  # Replace with the correct Gemini model initialization
+#         except Exception as e:
+#             st.error(f"Error initializing Gemini model: {e}")
+#             my_gemini_model = None
+
+#         # If model is successfully initialized
+#         if gemini_model:
+#             if st.button("Analyze Image"):
+#                 with st.spinner("Fetching insights from Gemini API..."):
+#                     response = query_gemini_api_for_image(image, gemini_model)
+#                     st.success("Gemini API Response:")
+#                     st.write(response)
+#         else:
+#             st.error("Gemini model is not properly initialized. Please check the configuration.")
+
+#     except Exception as e:
+#         st.error(f"Error processing the uploaded image: {e}")
+# else:
+#     st.info("Please upload an image to proceed.")
