@@ -35,25 +35,6 @@ gemini_model = __get_gemini_client__()
 st.title("University Recommendation and Insights App")
 st.markdown("This app helps international students find the best universities and gain insights based on key metrics.")
 
-# User Input
-
-# user_text = st.text_area(
-#     "Describe your preferences (e.g., location, academic reputation, international student ratio, employment rate):",
-#     placeholder="E.g., I want a university in the United States with a high academic reputation and good employment rates."
-# )
-
-# # Extracted keywords from user input
-# def extract_features(user_text):
-#     # Dummy extraction logic (replace with actual NLP feature extraction)
-#     extracted_features = {
-#         "Country": "United States",
-#         "International Students Ratio Score": 85.0,
-#         "Academic Reputation Score": 90.0,
-#         "Graduate Employment Rate Score": 95.0
-#     }
-#     return extracted_features
-
-
 # I - User input text area
 user_text = st.text_area(
     "Describe your preferences (e.g., location, academic reputation, international student ratio, employment rate):",
@@ -61,45 +42,7 @@ user_text = st.text_area(
 )
 
 
-# II - NLP Feature Extraction--------------------------------------------------------------------------------------------------------
-# def extract_features_from_text(user_text):
-#     """
-#     Extract features like Country, International Students Ratio Score,
-#     Academic Reputation Score, and Graduate Employment Rate Score from user input text.
-#     """
-#     # Initialize default values
-#     extracted_features = {
-#         "Country": "Unknown",
-#         "International Students Ratio Score": 50.0,  # Default value
-#         "Academic Reputation Score": 50.0,  # Default value
-#         "Graduate Employment Rate Score": 50.0  # Default value
-#     }
-    
-#     # Process the text to find key features
-#     lower_text = user_text.lower()
-    
-#     # Extract country
-#     if "united states" in lower_text:
-#         extracted_features["Country"] = "United States"
-#     elif "canada" in lower_text:
-#         extracted_features["Country"] = "Canada"
-#     elif "united kingdom" in lower_text or "uk" in lower_text:
-#         extracted_features["Country"] = "United Kingdom"
-#     elif "australia" in lower_text:
-#         extracted_features["Country"] = "Australia"
-    
-#     # Extract scores based on keywords and simple rules
-#     for word in lower_text.split():
-#         if "academic" in word:
-#             extracted_features["Academic Reputation Score"] = 40.0  # Example logic
-#         elif "employment" in word:
-#             extracted_features["Graduate Employment Rate Score"] = 45.0  # Example logic
-#         elif "international" in word:
-#             extracted_features["International Students Ratio Score"] = 55.0  # Example logic
-
-#     return extracted_features
-
-
+# II - NLP Feature Extraction
 import re
 
 def extract_features(sentence):
@@ -122,21 +65,13 @@ def extract_features(sentence):
         "International Students Ratio Score": float(international_students_match.group(1)) if international_students_match else None,
         "Graduate Employment Rate Score": float(employment_rate_match.group(1)) if employment_rate_match else None
     }
-
     return extracted_features
-
-# # Example usage
-# sentence = "I want a university in the United States with a high academic reputation of 70, international student diversity of 65 and good employment rates around 70."
-# extracted_features = extract_features(sentence)
-# print(extracted_features)
 
 if user_text:
     with st.spinner("Processing your input..."):
         features = extract_features(user_text)
         st.write("Extracted Features:")
         st.json(features)
-        
-#-------------------------------------------------------------------------------------------------------
 
     # III - Clustering Analysis
     st.subheader("Clustering Analysis")
@@ -177,8 +112,11 @@ if user_text:
     )
     ax.legend()
     st.pyplot(fig)
+     
+    
     
 
+    
     # V - Use Gemini API to fetch additional details
     st.subheader("Additional Details")
     for index, row in top_universities.iterrows():
@@ -187,6 +125,7 @@ if user_text:
             response = gemini_model.generate_content(query).text
             st.write(f"### {row['University Name']}")
             st.write(response)
+
 
     # VI - User Optional Q&A
     st.subheader("Ask More Questions")
