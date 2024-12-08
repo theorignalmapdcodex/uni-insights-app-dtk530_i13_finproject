@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
@@ -73,45 +74,112 @@ if user_text:
         st.write("Extracted Features:")
         st.json(features)
 
-    # III - Clustering Analysis
+    # # IIIa - Clustering Analysis
+    # st.subheader("Clustering Analysis")
+    # clustering_features = data[["International Students Ratio Score", "Graduate Employment Rate Score"]]
+    # scaler = StandardScaler()
+    # scaled_features = scaler.fit_transform(clustering_features)
+
+    # kmeans = KMeans(n_clusters=3, random_state=42)
+    # data["Cluster"] = kmeans.fit_predict(scaled_features)
+
+    # user_cluster = kmeans.predict(scaler.transform([[features["International Students Ratio Score"], features["Graduate Employment Rate Score"]]]))[0]
+    # top_universities = data[data["Cluster"] == user_cluster].head(3)
+
+    # st.write(f"Top universities for your preferences (Cluster {user_cluster}):")
+    # st.dataframe(top_universities[["University Name", "Country", "Graduate Employment Rate Score"]])
+
+    # # IV - Plot Cluster Graph
+    # st.subheader("Cluster Visualization")
+    # fig, ax = plt.subplots(figsize=(10, 6))
+    # scatter = ax.scatter(
+    #     data["International Students Ratio Score"],
+    #     data["Graduate Employment Rate Score"],
+    #     c=data["Cluster"],
+    #     cmap="viridis",
+    #     alpha=0.7,
+    #     edgecolor="k"
+    # )
+    # ax.set_xlabel("International Students Ratio Score")
+    # ax.set_ylabel("Graduate Employment Rate Score")
+    # ax.set_title("Clustering of Universities")
+    # ax.scatter(
+    #     features["International Students Ratio Score"],
+    #     features["Graduate Employment Rate Score"],
+    #     color="red",
+    #     label="User Preference",
+    #     s=150,
+    #     edgecolor="black"
+    # )
+    # ax.legend()
+    # st.pyplot(fig)
+    
+    
+    # IIIb - Clustering Analysis: Updated Clustering and Recommendation Code From ChatGPT
     st.subheader("Clustering Analysis")
-    clustering_features = data[["International Students Ratio Score", "Graduate Employment Rate Score"]]
+
+    # Include more features in clustering
+    clustering_features = data[[
+        "Academic Reputation Score",
+        "International Students Ratio Score",
+        "Graduate Employment Rate Score"
+    ]]
+
     scaler = StandardScaler()
     scaled_features = scaler.fit_transform(clustering_features)
 
     kmeans = KMeans(n_clusters=3, random_state=42)
     data["Cluster"] = kmeans.fit_predict(scaled_features)
 
-    user_cluster = kmeans.predict(scaler.transform([[features["International Students Ratio Score"], features["Graduate Employment Rate Score"]]]))[0]
-    top_universities = data[data["Cluster"] == user_cluster].head(3)
+    # Scale user input
+    if user_text:
+        user_features_scaled = scaler.transform([[
+            features["Academic Reputation Score"],
+            features["International Students Ratio Score"],
+            features["Graduate Employment Rate Score"]
+        ]])
 
-    st.write(f"Top universities for your preferences (Cluster {user_cluster}):")
-    st.dataframe(top_universities[["University Name", "Country", "Graduate Employment Rate Score"]])
+        user_cluster = kmeans.predict(user_features_scaled)[0]
 
-    # IV - Plot Cluster Graph
-    st.subheader("Cluster Visualization")
-    fig, ax = plt.subplots(figsize=(10, 6))
-    scatter = ax.scatter(
-        data["International Students Ratio Score"],
-        data["Graduate Employment Rate Score"],
-        c=data["Cluster"],
-        cmap="viridis",
-        alpha=0.7,
-        edgecolor="k"
-    )
-    ax.set_xlabel("International Students Ratio Score")
-    ax.set_ylabel("Graduate Employment Rate Score")
-    ax.set_title("Clustering of Universities")
-    ax.scatter(
-        features["International Students Ratio Score"],
-        features["Graduate Employment Rate Score"],
-        color="red",
-        label="User Preference",
-        s=150,
-        edgecolor="black"
-    )
-    ax.legend()
-    st.pyplot(fig)
+        # Filter by cluster and country
+        filtered_data = data[data["Cluster"] == user_cluster]
+        if features["Country"]:
+            filtered_data = filtered_data[filtered_data["Country"].str.contains(features["Country"], case=False)]
+
+        # Recommend top universities based on clustering
+        top_universities = filtered_data.sort_values(
+            by=["Academic Reputation Score", "Graduate Employment Rate Score"], 
+            ascending=False
+        ).head(3)
+
+        st.write(f"Top universities for your preferences (Cluster {user_cluster}):")
+        st.dataframe(top_universities[["University Name", "Country", "Academic Reputation Score", "Graduate Employment Rate Score"]])
+
+        # Cluster Visualization
+        st.subheader("Cluster Visualization")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        scatter = ax.scatter(
+            data["International Students Ratio Score"],
+            data["Graduate Employment Rate Score"],
+            c=data["Cluster"],
+            cmap="viridis",
+            alpha=0.7,
+            edgecolor="k"
+        )
+        ax.set_xlabel("International Students Ratio Score")
+        ax.set_ylabel("Graduate Employment Rate Score")
+        ax.set_title("Clustering of Universities")
+        ax.scatter(
+            features["International Students Ratio Score"],
+            features["Graduate Employment Rate Score"],
+            color="red",
+            label="User Preference",
+            s=150,
+            edgecolor="black"
+        )
+        ax.legend()
+        st.pyplot(fig)
+
      
     
     
