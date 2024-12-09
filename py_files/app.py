@@ -181,8 +181,6 @@ if user_text:
         st.pyplot(fig)
 
      
-    
-    
 
     
     # V - Use Gemini API to fetch additional details
