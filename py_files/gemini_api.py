@@ -8,4 +8,4 @@ load_dotenv()
 the_api_key = os.getenv("DTK530_GEMINI_AI_API_KEY")
 
 # Using the API key in my code
-print(the_api_key)
+# print(the_api_key)
