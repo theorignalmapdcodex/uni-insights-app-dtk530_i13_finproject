@@ -20,7 +20,6 @@ import plotly.express as px
 # Load the dataset
 data = pd.read_csv('../datasets/clean/qs2023_worlduni_rank_cleandata.csv')
 
-from constants_and_styles import *
 from gemini_ai_call import *
 from gemini_api import *
 
