@@ -17,8 +17,13 @@ warnings.filterwarnings("ignore")
 from matplotlib.colors import ListedColormap
 import plotly.express as px
 
+
+from pathlib import Path
+
+uni_recommend_rawdata_csv = Path(__file__).parents[1] / 'datasets/clean/qs2023_worlduni_rank_cleandata.csv'
+
 # Load the dataset
-data = pd.read_csv('../datasets/clean/qs2023_worlduni_rank_cleandata.csv')
+data = pd.read_csv(uni_recommend_rawdata_csv)
 
 from gemini_ai_call import *
 from gemini_api import *
@@ -123,7 +128,6 @@ if user_text:
         # st.json(features)
 
     # IIIa - Clustering Analysis
-    
     num_of_clusters = 25
 
     
