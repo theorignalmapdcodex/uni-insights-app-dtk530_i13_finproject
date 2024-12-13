@@ -116,7 +116,7 @@ st.markdown("This app helps international students find the best universities an
 st.markdown(f'<div style="text-align: center; color: white; font-size:14px"> Describe your preferences (e.g., location, academic reputation, international student ratio, employment rate):', unsafe_allow_html=True)
 # I - User input text area
 user_text = st.text_area(
-    "",
+    " ",
     placeholder="E.g., I want a university in the United States with a high academic reputation of 90, international student diversity of 85 and good employment rates around 80."
 )
 
