@@ -24,6 +24,8 @@ import re
 
 import PIL.Image
 
+import random
+
 ################################################################
 
 
@@ -187,8 +189,10 @@ if user_text and user_to_click:
 
         user_cluster = kmeans.predict(selected_features_encoded)[0]
         
-        # EXTRA - Filtering by cluster and country
+        # Filtering by cluster and country
         filtered_data = data[data["Cluster"] == user_cluster]
+        
+        # print(filtered_data)
         
         # Tackling the edge case of a country not being in the dataset
         if features["Country"]:
@@ -213,6 +217,25 @@ if user_text and user_to_click:
     st.subheader("Cluster Visualization")
 
     data["Size"] = 2
+    
+    
+    # Defining 25 custom cluster names
+    cluster_names = [
+        f"University Cluster {i}" for i in range(1, 26)
+    ]
+    
+    # Generating random colors for the 25 clusters
+    colors = [
+        f"#{''.join(random.choices('0123456789ABCDEF', k=6))}" for _ in range(25)
+    ]
+    color_discrete_map = {name: color for name, color in zip(cluster_names, colors)}
+    
+    # Map numeric cluster IDs to custom names
+    data['Cluster'] = data['Cluster'].map({i: name for i, name in enumerate(cluster_names, start=1)})
+
+    # Setting category order for clusters
+    category_orders = {'Cluster': cluster_names}
+
 
     # Creating 3D scatter plot with Plotly to visualize the three features helping predict the best scores and schools
     fig = px.scatter_3d(
@@ -220,14 +243,27 @@ if user_text and user_to_click:
         x='Academic Reputation Score',
         y='International Students Ratio Score',
         z='Graduate Employment Rate Score',
-        color=data['Cluster'].astype(str),  # Use cluster labels as color
-        title="3D Scatter Plot of Clusters",
+        color = 'Cluster',
+        title="3D Scatter Plot of University Clusters by Reputation, Diversity, and Employment Scores",
         labels={'cluster': 'Cluster'},
         symbol = 'Cluster',
-        size = 'Size'
+        size = 'Size',
+        category_orders=category_orders,  # Custom order for clusters
+        color_discrete_map=color_discrete_map  # Assign random colors
     )
-    # Adding centroids to help pinpoint the 3 selected schools
-    centroids = kmeans.cluster_centers_[:3] # The top 3 universities
+    
+    # Updating legend appearance
+    fig.update_layout(
+        legend=dict(
+            title="University Cluster Categories",  # Title for the legend
+            font=dict(size=12),          # Legend font size
+            itemsizing='constant',       # Consistent item sizing
+            orientation='v'              # Vertical legend
+        )
+    )
+    
+    # Adding centroids to ####
+    centroids = kmeans.cluster_centers_[:3] # The top 3 ###
     centroids_df = pd.DataFrame(centroids, columns=['Academic Reputation Score', 'International Students Ratio Score', 'Graduate Employment Rate Score'])
     fig.add_scatter3d(
         x=centroids_df['Academic Reputation Score'],
@@ -235,8 +271,9 @@ if user_text and user_to_click:
         z=centroids_df['Graduate Employment Rate Score'],
         mode='markers',
         marker=dict(size=16, color='black', symbol='cross'),
-        name='Top 3 User Preferences'
+        name='Centroids'
     )
+    
     st.plotly_chart(fig, use_container_width=True)
          
 
@@ -261,11 +298,15 @@ if user_text and user_to_click:
                         - Unique Founding Story
                         - Groundbreaking Research/Innovation
                         - Cultural/Academic Contribution That Sets It Apart
+                        
+                        4. Scholarship Opportunities:
+                        - For Undergraduate students
+                        - For Graduate students
 
-                        4. Quick Stats:
+                        5. Quick Stats:
                         - Total Student Population
                         - International Student Percentage
-                        - Student-to-Faculty Ratio
+                        - School's acceptance rate
                         - Year Founded
                 """
         with st.spinner(f"Fetching details for {row['University Name']}..."):
