@@ -1,3 +1,6 @@
+###############################################################
+
+# Importing the necessary packages
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -17,18 +20,26 @@ warnings.filterwarnings("ignore")
 from matplotlib.colors import ListedColormap
 import plotly.express as px
 
+import re
 
+import PIL.Image
+
+################################################################
+
+
+
+# Securely accessing my dataset
 from pathlib import Path
-
 uni_recommend_rawdata_csv = Path(__file__).parents[1] / 'datasets/clean/qs2023_worlduni_rank_cleandata.csv'
 
-# Load the dataset
+# Loading the dataset
 data = pd.read_csv(uni_recommend_rawdata_csv)
 
+# Importing the necessary functions needed to run the app
 from gemini_ai_call import *
 from gemini_api import *
 
-# Gemini API integration 1
+# Gemini API integration #1 - Calling the Gemini API
 def __get_gemini_client__() -> genai.GenerativeModel:
     genai.configure(api_key=the_api_key)
     gemini_model = genai.GenerativeModel("gemini-1.5-flash")
@@ -36,8 +47,7 @@ def __get_gemini_client__() -> genai.GenerativeModel:
    
 gemini_model = __get_gemini_client__()
 
-
-# Recoding the dataset for clustering/classification
+# Function to recode the selected features (Academic Reputation Score, International Students Ratio Score, Graduate Employment Rate Score) from the dataset for clustering/classification
 def recode_the_cols(data):
     the_ranges = [0,20,40,60,80,100]
     the_labels = ['Very Low', 'Low', 'Medium', 'High', 'Very High']
@@ -49,12 +59,12 @@ def recode_the_cols(data):
         'Very High': 4
     }
 
-    #1
+    # Segmenting and sorting data values into bins for easy classification
     data['Academic Reputation Score Encoded'] = pd.cut( data['Academic Reputation Score'],bins = the_ranges , include_lowest = True, labels = the_labels)
     data['International Students Ratio Score Encoded'] = pd.cut( data['International Students Ratio Score'],bins = the_ranges , include_lowest = True, labels = the_labels)
     data['Graduate Employment Rate Score Encoded'] = pd.cut( data['Graduate Employment Rate Score'],bins = the_ranges , include_lowest = True, labels = the_labels)
 
-    #2
+    # Mapping the new codes to the new encoded columns
     data['Academic Reputation Score Encoded'] = data['Academic Reputation Score Encoded'].map(the_map_dict)
     data['International Students Ratio Score Encoded'] = data['International Students Ratio Score Encoded'].map(the_map_dict)
     data['Graduate Employment Rate Score Encoded'] = data['Graduate Employment Rate Score Encoded'].map(the_map_dict)
@@ -62,10 +72,40 @@ def recode_the_cols(data):
     return data
     
 
-#--------------------------------------#
 
-# Title and introduction# Streamlit App UI
-st.title("University Recommendation and Insights App")
+#------------------------ The Streamlit App starts here! --------------------------#
+
+# Function for styling the app [BlueBlack - #21262D; Grey - #C9D1D9]
+
+def set_background_theme():
+    st.markdown("""
+    <style>
+    /* Main background */
+    .stApp {
+        background-color: #073763;
+        color: #f0c244;
+    } 
+    
+    /* Customizing the button element */
+    .stButton>button {
+        background-color: #f0c244;
+        color: #073763;
+        margin-left: 270px;
+    }
+    
+    </style>
+    """, unsafe_allow_html=True)   
+
+# Calling the styling function
+set_background_theme()
+
+# App Logo
+app_logo_image_path = Path(__file__).parents[1] / 'images/UR&IA.png'
+app_logo_image = PIL.Image.open(app_logo_image_path)
+st.image(app_logo_image)
+
+# Title and Introduction
+# st.title("University Recommendation and Insights App")
 st.markdown("This app helps international students find the best universities and gain insights based on key metrics.")
 
 # I - User input text area
@@ -75,30 +115,11 @@ user_text = st.text_area(
 )
 
 
-# II - NLP Feature Extraction
-
-import re
+# II - Natural Language Processing Feature Extraction using Regex
 
 def extract_features(sentence):
-    # my_extraction_prompt = f"""
-    # Extract the important entities mentioned in the text below. First extract all Country name, then extract all Academic reputation score, then extract International Students ratio score which fit the content and finally extract Graduate Employment Rate score. Make sure you ignore percentages. Also, for the country name, use the full version if it means changing the short versions to the long ones.
-
-    # Desired format/response should be json format with its corresponding values: 
-    # Country: -||- 
-    # Academic reputation: -||- 
-    # International Students ratio: -||- 
-    # Graduate Employment Rate: -||- 
     
-    # Text: {sentence}"""
-    
-    # # Call the gemini query function and pass prompt
-    # # Parse the .json result to to_dict and extract the features
-    # # *** Check if country, aca rep, int stud etc. is present in query
-
-    # # fuzzy search - when working in the filtered_data_country section (https://github.com/rapidfuzz/RapidFuzz)
-    
-    
-    # Define patterns for each feature
+    # Defining patterns for each feature
     country_pattern = r"university in the ([A-Za-z\s]+) with"
     academic_reputation_pattern = r"academic reputation of (\d+)"
     international_students_pattern = r"international student diversity of (\d+)"
@@ -120,97 +141,18 @@ def extract_features(sentence):
     return extracted_features
 
 
-
 if user_text:
     with st.spinner("Processing your input..."):
         features = extract_features(user_text)
         # st.write("Extracted Features:")
         # st.json(features)
-
-    # IIIa - Clustering Analysis
-    num_of_clusters = 25
-
     
-    # st.subheader("Clustering Analysis")
-    # clustering_features = data[["Academic Reputation Score","International Students Ratio Score", "Graduate Employment Rate Score"]]
-    # scaler = StandardScaler()
-    # scaled_features = scaler.fit_transform(clustering_features)
-
-    # kmeans = KMeans(n_clusters=num_of_clusters, random_state=42)
-    # data["Cluster"] = kmeans.fit_predict(scaled_features)
-
-    # user_cluster = kmeans.predict(scaler.transform([[features["Academic Reputation Score"],features["International Students Ratio Score"], features["Graduate Employment Rate Score"]]]))[0]
-    # top_universities = data[data["Cluster"] == user_cluster].head(3)
-
-    # st.write(f"Top universities for your preferences (Cluster {user_cluster}):")
-    # st.dataframe(top_universities[["University Name", "Country", "Academic Reputation Score","International Students Ratio Score","Graduate Employment Rate Score"]])
-
-
-
-    # # IV - Plot Cluster Graph
-    # st.subheader("Cluster Visualization")
-
-
-    # # Create 3D scatter plot with Plotly
-    # fig = px.scatter_3d(
-    #     data,
-    #     x='Academic Reputation Score',
-    #     y='International Students Ratio Score',
-    #     z='Graduate Employment Rate Score',
-    #     color=data['Cluster'].astype(str),  # Use cluster labels as color
-    #     title="3D Scatter Plot of Clusters",
-    #     labels={'cluster': 'Cluster'}
-    # )
-    # # # Add centroids
-    # centroids = kmeans.cluster_centers_[:3]
-    # centroids_df = pd.DataFrame(centroids, columns=['Academic Reputation Score', 'International Students Ratio Score', 'Graduate Employment Rate Score'])
-    # fig.add_scatter3d(
-    #     x=centroids_df['Academic Reputation Score'],
-    #     y=centroids_df['International Students Ratio Score'],
-    #     z=centroids_df['Graduate Employment Rate Score'],
-    #     mode='markers',
-    #     marker=dict(size=8, color='black', symbol='star'),
-    #     name='Top 3 User Preferences'
-    # )
-    # st.plotly_chart(fig, use_container_width=True)
-    
-    
-    # fig, ax = plt.subplots(figsize=(10, 6))
-    # scatter = ax.scatter3d(
-    #     data["Academic Reputation Score"],
-    #     data["International Students Ratio Score"],
-    #     data["Graduate Employment Rate Score"],
-    #     c=data["Cluster"],
-    #     cmap= custom_cmap,
-    #     alpha=0.7,
-    #     edgecolor="k"
-    # )
-    # ax.set_xlabel("Academic Reputation Score")
-    # ax.set_ylabel("International Students Ratio Score")
-    # ax.set_zlabel("Graduate Employment Rate Score")
-    
-    # ax.set_title("Clustering of Universities")
-    # ax.scatter3d(
-    #     features["Academic Reputation Score"],
-    #     features["International Students Ratio Score"],
-    #     features["Graduate Employment Rate Score"],
-    #     color="red",
-    #     label="User Preference",
-    #     s=150,
-    #     edgecolor="black"
-    # )
-    # ax.legend()
-    # st.pyplot(fig)
-    
-    
-    # IIIb - Clustering Analysis: Updated Clustering and Recommendation Code From ChatGPT
-    
+    # III - Clustering Analysis
     st.subheader("Clustering Analysis")
-    
  
     data = recode_the_cols(data) # Creating 3 new columns with encoded to perform our clustering
 
-    # Include more features in clustering
+    # Features for classification/clustering
     clustering_features = data[[
         "Academic Reputation Score Encoded",
         "International Students Ratio Score Encoded",
@@ -219,15 +161,12 @@ if user_text:
     
     data = recode_the_cols(data)
 
-    scaler = StandardScaler()
-    # scaled_features = scaler.fit_transform(clustering_features) # Not need for clustering
-
     num_of_clusters = 25 
 
     kmeans = KMeans(n_clusters=num_of_clusters, random_state=42)
     data["Cluster"] = kmeans.fit_predict(clustering_features)
 
-    # Scale user input
+    # Recoding user input to allow for clustering
     if user_text:
         features_encoded = recode_the_cols(pd.DataFrame([features]))
         
@@ -237,22 +176,21 @@ if user_text:
         "Graduate Employment Rate Score Encoded"
         ]]
         
-        print(selected_features_encoded)
+        # print(selected_features_encoded)
 
         user_cluster = kmeans.predict(selected_features_encoded)[0]
         
-
-        # Filter by cluster and country
+        # EXTRA - Filtering by cluster and country
         filtered_data = data[data["Cluster"] == user_cluster]
-            
         
+        # Tackling the edge case of a country not being in the dataset
         if features["Country"]:
             filtered_data_country = filtered_data[filtered_data["Country"].str.contains(features["Country"], case=False)]
             
             if len(filtered_data_country) > 0:
                 filtered_data = filtered_data_country
             else:
-                st.write("Unfortunately, no schools are available for your selected preference scores but below are other 3 schools in different countries you can consider!")
+                st.write("Unfortunately, no schools are available for your selected preference scores but below are other schools in different countries you can consider!")
                 
         # Recommend top universities based on clustering
         top_universities = filtered_data.sort_values(
@@ -264,13 +202,12 @@ if user_text:
         st.dataframe(top_universities[["University Name", "Country", "Academic Reputation Score","International Students Ratio Score","Graduate Employment Rate Score"]])
 
 
-
-    # IV - Plot Cluster Graph
+    # IV - Plotting Cluster Graph for enhanced UI experience for user
     st.subheader("Cluster Visualization")
 
     data["Size"] = 2
 
-    # Create 3D scatter plot with Plotly
+    # Creating 3D scatter plot with Plotly to visualize the three features helping predict the best scores and schools
     fig = px.scatter_3d(
         data,
         x='Academic Reputation Score',
@@ -282,8 +219,8 @@ if user_text:
         symbol = 'Cluster',
         size = 'Size'
     )
-    # # Add centroids
-    centroids = kmeans.cluster_centers_[:3]
+    # Adding centroids to help pinpoint the 3 selected schools
+    centroids = kmeans.cluster_centers_[:3] # The top 3 universities
     centroids_df = pd.DataFrame(centroids, columns=['Academic Reputation Score', 'International Students Ratio Score', 'Graduate Employment Rate Score'])
     fig.add_scatter3d(
         x=centroids_df['Academic Reputation Score'],
@@ -297,10 +234,33 @@ if user_text:
          
 
     
-    # V - Use Gemini API to fetch additional details
+    # V - Gemini API Integration #2 - Using Gemini API to fetch additional details
     st.subheader("Additional Details")
     for index, row in top_universities.iterrows():
-        query = f"Provide detailed insights about {row['University Name']} including its strengths, application deadlines, and top programs."
+        query = f"""
+                    Please provide a comprehensive overview of {row['University Name']} focusing on:
+
+                        1. Top 3 Undergraduate Programs:
+                        - Program Names
+                        - Unique Strengths
+                        - Notable Faculty/Research Areas
+
+                        2. Top 3 Graduate Programs:
+                        - Program Names
+                        - Research Opportunities
+                        - Industry/Academic Connections
+
+                        3. Distinctive Historical or Institutional Element:
+                        - Unique Founding Story
+                        - Groundbreaking Research/Innovation
+                        - Cultural/Academic Contribution That Sets It Apart
+
+                        4. Quick Stats:
+                        - Total Student Population
+                        - International Student Percentage
+                        - Student-to-Faculty Ratio
+                        - Year Founded
+                """
         with st.spinner(f"Fetching details for {row['University Name']}..."):
             response = gemini_model.generate_content(query).text
             st.write(f"### {row['University Name']}")
@@ -314,3 +274,5 @@ if user_text:
         with st.spinner("Fetching answer..."):
             response = gemini_model.generate_content(follow_up_question).text
             st.write(response)
+           
+st.markdown(f'<div style="text-align: center; color: #f0c244;"> Made with ❤️ by theoriginialmapd © Copyright 2024 @ Duke in DESIGNTK530', unsafe_allow_html=True)

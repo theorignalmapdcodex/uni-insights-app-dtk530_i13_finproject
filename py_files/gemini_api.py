@@ -4,8 +4,7 @@ from dotenv import load_dotenv
 # Loading environment variables from the .env file
 load_dotenv()
 
-# Getting the api key from the environment variable
+# Getting the api key from the environment variable and using the API key in my code
 the_api_key = os.getenv("DTK530_GEMINI_AI_API_KEY")
 
-# Using the API key in my code
 # print(the_api_key)
