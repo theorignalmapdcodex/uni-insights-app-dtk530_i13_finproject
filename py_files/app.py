@@ -93,6 +93,11 @@ def set_background_theme():
         margin-left: 270px;
     }
     
+    .stTextArea {
+        label-color: #f0c244;
+        color: #073763;
+    }
+    
     </style>
     """, unsafe_allow_html=True)   
 
@@ -108,12 +113,14 @@ st.image(app_logo_image)
 # st.title("University Recommendation and Insights App")
 st.markdown("This app helps international students find the best universities and gain insights based on key metrics.")
 
+st.markdown(f'<div style="text-align: center; color: white; font-size:14px"> Describe your preferences (e.g., location, academic reputation, international student ratio, employment rate):', unsafe_allow_html=True)
 # I - User input text area
 user_text = st.text_area(
-    "Describe your preferences (e.g., location, academic reputation, international student ratio, employment rate):",
+    "",
     placeholder="E.g., I want a university in the United States with a high academic reputation of 90, international student diversity of 85 and good employment rates around 80."
 )
 
+user_to_click = st.button("Recommend!")
 
 # II - Natural Language Processing Feature Extraction using Regex
 
@@ -141,7 +148,7 @@ def extract_features(sentence):
     return extracted_features
 
 # Check for some errors here
-if user_text:
+if user_text and user_to_click:
     with st.spinner("Processing your input..."):
         features = extract_features(user_text)
         # st.write("Extracted Features:")
@@ -150,7 +157,7 @@ if user_text:
     # III - Clustering Analysis
     st.subheader("Clustering Analysis")
  
-    data = recode_the_cols(data) # Creating 3 new columns with encoded to perform our clustering
+    data = recode_the_cols(data) # Creating 3 new columns with encoded to perform  our clustering
 
     # Features for classification/clustering
     clustering_features = data[[
