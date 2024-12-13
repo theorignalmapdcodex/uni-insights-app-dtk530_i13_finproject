@@ -140,7 +140,7 @@ def extract_features(sentence):
     }
     return extracted_features
 
-
+# Check for some errors here
 if user_text:
     with st.spinner("Processing your input..."):
         features = extract_features(user_text)
@@ -190,7 +190,7 @@ if user_text:
             if len(filtered_data_country) > 0:
                 filtered_data = filtered_data_country
             else:
-                st.write("Unfortunately, no schools are available for your selected preference scores but below are other schools in different countries you can consider!")
+                st.markdown('<p style="color:white;">Unfortunately, no schools are available for your selected preference scores but below are other schools in different countries you can consider!</p>', unsafe_allow_html=True)
                 
         # Recommend top universities based on clustering
         top_universities = filtered_data.sort_values(
