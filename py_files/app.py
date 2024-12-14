@@ -83,6 +83,8 @@ def set_background_theme():
     st.markdown("""
     <style>
     /* Main background */
+    
+    
     .stApp {
         background-color: #073763;
         color: #f0c244;
@@ -92,13 +94,14 @@ def set_background_theme():
     .stButton>button {
         background-color: #f0c244;
         color: #073763;
-        margin-left: 270px;
+        # margin-left: 270px;
     }
     
     .stTextArea {
         label-color: #f0c244;
         color: #073763;
     }
+    
     
     </style>
     """, unsafe_allow_html=True)   
@@ -122,7 +125,15 @@ user_text = st.text_area(
     placeholder="E.g., I want a university in the United States with a high academic reputation of 90, international student diversity of 85 and good employment rates around 80."
 )
 
-user_to_click = st.button("Recommend!")
+
+# Create a container with two columns
+col1, col2 = st.columns(2)
+
+# Place the button in the second column
+with col2:
+    user_to_click = st.button("Recommend!")
+
+# user_to_click = st.button("Recommend!")
 
 # II - Natural Language Processing Feature Extraction using Regex
 
