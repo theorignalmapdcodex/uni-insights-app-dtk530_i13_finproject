@@ -94,7 +94,7 @@ def set_background_theme():
     .stButton>button {
         background-color: #f0c244;
         color: #073763;
-        margin-left: 130px;
+        margin-left: 110px;
     }
     
     .stTextArea {
