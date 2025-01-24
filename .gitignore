@@ -1,0 +1,3 @@
+# Ignoring the secret files
+py_files/gemini_api.py
+py_files/.env
