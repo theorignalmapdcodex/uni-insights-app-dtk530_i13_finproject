@@ -1,3 +1,2 @@
 # Ignoring the secret files - Finally got .gitignore to work (again)
-py_files/gemini_api.py
 py_files/.env
