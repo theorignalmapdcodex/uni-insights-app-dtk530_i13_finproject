@@ -41,6 +41,13 @@ data = pd.read_csv(uni_recommend_rawdata_csv)
 from gemini_ai_call import *
 from gemini_api import *
 
+
+# Initialize session state to store conversation history
+if 'conversation_history' not in st.session_state:
+    st.session_state.conversation_history = []
+
+
+
 # Gemini API integration #1 - Calling the Gemini API
 def __get_gemini_client__() -> genai.GenerativeModel:
     genai.configure(api_key=the_api_key)
@@ -265,7 +272,7 @@ if user_text and user_to_click:
         )
     )
     
-    # Adding centroids to ####
+    # Adding centroids
     centroids = kmeans.cluster_centers_[:3] # The top 3 ###
     centroids_df = pd.DataFrame(centroids, columns=['Academic Reputation Score', 'International Students Ratio Score', 'Graduate Employment Rate Score'])
     fig.add_scatter3d(
@@ -279,7 +286,6 @@ if user_text and user_to_click:
     
     st.plotly_chart(fig, use_container_width=True)
          
-
     
     # V - Gemini API Integration #2 - Using Gemini API to fetch additional details
     st.subheader("Additional Details")
@@ -317,13 +323,12 @@ if user_text and user_to_click:
             st.write(f"### {row['University Name']}")
             st.write(response)
 
-
-    # VI - User Optional Q&A
-    st.subheader("Ask More Questions")
-    follow_up_question = st.text_input("Ask any specific question about the recommended universities:")
-    if st.button("Submit Question"):
-        with st.spinner("Fetching answer..."):
-            response = gemini_model.generate_content(follow_up_question).text
-            st.write(response)
+# VI - User Optional Q&A
+st.subheader("Ask More Questions")
+follow_up_question = st.text_input("Ask any specific question about the recommended universities:")
+if st.button("Submit Question"):
+    with st.spinner("Fetching answer..."):
+        response_additional = gemini_model.generate_content(follow_up_question).text
+        st.write(response_additional)
            
 st.markdown(f'<div style="text-align: center; color: #f0c244;"> Made with ❤️ by theoriginialmapd © Copyright 2024 @ Duke in DESIGNTK530', unsafe_allow_html=True)
