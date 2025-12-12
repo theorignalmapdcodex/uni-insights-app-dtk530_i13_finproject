@@ -67,5 +67,5 @@ This will launch the Streamlit app in your web browser.
 ### Deployment
 This app was deployed via [Streamlit Cloud](https://streamlit.io/cloud).
 
-**Link to your deployed app here:**
+**Link to my deployed app here:**
 [University Recommendation and Insights App](https://uni-recommend-app.streamlit.app/)
